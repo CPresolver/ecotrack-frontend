@@ -1,13 +1,53 @@
+"use client"
+
+import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { FaTrash } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
+import { withAuth } from "@/utils/auth";
+import { getActions } from "@/services/actionService";
 
-export default function HomePage() {
+const HomePage = () => {
+  const [actions, setActions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  //const { signOut } = useAuth()
+
+
+  useEffect(() => {
+    async function fetchActions() {
+      try {
+        const data = await getActions();
+        setActions(data);
+      } catch (error) {
+        console.error("Erro ao buscar usuários:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchActions();
+  }, []);
+
+  const handleDelete = (id) => {
+    
+  }
+  
+  const handleLogout = () => {
+    //signOut()
+  }
+
+
+  if (loading) return <p>Carregando...</p>;
+
   return (
     <div className="flex justify-center mt-24">
-      <div className="w-2/3 p-4 shadow-md rounded-lg">
+      <div className="w-2/3 p-4 shadow-md">
         <div>
-          <h2 className="text-2xl font-bold uppercase">Acção sustentável</h2>
+          <div className="py-5">
+            <h1 className="text-2xl font-bold uppercase">Você possui 10 pontos acumulados</h1>
+          </div>
+          
+          <h2 className="text-xl font-semibold uppercase">Acção sustentável</h2>
 
           <div className="flex justify-end">
             <button className="p-2 bg-blue-500 text-white font-bold text-sm uppercase">
@@ -99,7 +139,7 @@ export default function HomePage() {
           </div>
 
           <div className="mt-5">
-            <button className="p-2 bg-blue-500 text-white font-bold text-sm uppercase">
+            <button onClick={handleLogout} className="p-2 bg-blue-500 text-white font-bold text-sm uppercase">
               <Link href="/action/create">Terminar sessão</Link>
             </button>
           </div>
@@ -108,3 +148,7 @@ export default function HomePage() {
     </div>
   );
 }
+
+
+//export default withAuth(HomePage)
+export default HomePage

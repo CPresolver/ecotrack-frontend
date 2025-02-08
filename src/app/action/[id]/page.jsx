@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import React from "react";
-import FormLayout from "@/form";
+import FormLayout from "@/app/form";
 
 const EditAction = () => {
   const params = useParams();

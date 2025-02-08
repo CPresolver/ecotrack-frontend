@@ -1,19 +1,41 @@
+"use client"
+
 import React from "react";
-import FormLayout from "@/form";
+import FormLayout from "@/app/form";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
+  const [email, setEmail] = React.useState()
+  const [password, setPassword] = React.useState()
+
+  const { login } = useAuth();
+  const router = useRouter();
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    try {
+      await login(email, password);
+      router.push("/home"); 
+    } catch (error) {
+      console.error("Erro ao fazer login:", error);
+    }
+  }
+
+
   return (
     <FormLayout>
       <div>
         <h2 className="text-xl font-bold uppercase text-center">Login</h2>
         <div className="mt-4">
-          <form action="">
+          <form onSubmit={handleSubmit}>
             <input
               type="email"
               name=""
               placeholder="Email:"
               className="border p-2 w-full mb-5"
+              onChange={({target}) => setEmail(target.value)}
             />
 
             <input
@@ -21,10 +43,11 @@ const Login = () => {
               name=""
               placeholder="Senha:"
               className="border p-2 w-full mb-5"
+              onChange={({target}) => setPassword(target.value)}
             />
 
             <button
-              type="button"
+              type="submit"
               className="p-2 bg-blue-500 text-white font-bold text-sm uppercase hover:bg-blue-600"
             >
               Entrar

@@ -1,7 +1,19 @@
 import React from "react";
-import FormLayout from "@/form";
+import FormLayout from "@/app/form";
 
 const CreateAction = () => {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [points, setPoints] = useState("");
+  
+  const { addAction } = useActions();
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    await addAction({ title, description, category, points });
+  }
+
   return (
     <>
       <FormLayout>
@@ -9,27 +21,31 @@ const CreateAction = () => {
         <h2 className="uppercase font-bold text-xl">Criar uma nova acção</h2>
 
         <div className="mt-10">
-          <form action="">
+          <form onSubmit={handleSubmit}>
             <input
               type="text"
               name=""
               placeholder="Título:"
               className="border p-2 w-full mb-3"
+              onChange={({target}) => setTitle(target.value)}
             />
             <textarea
               name="description"
               placeholder="Descrição:"
               className="border p-2 w-full mb-3"
+              onChange={({target}) => setDescription(target.value)}
             ></textarea>
 
             <div className="flex justify-between">
               <div className="w-1/2 mr-2">
                 <select name="category" className="border p-2 w-full mb-3">
                   <option value="" disabled>
-                    Descrição
+                    Categoria
                   </option>
-                  <option value="">lalla</option>
-                  <option value="">lalla</option>
+                  <option value="">Reciclagem</option>
+                  <option value="">Energia</option>
+                  <option value="">Água</option>
+                  <option value="">Mobilidade</option>
                 </select>
               </div>
 
@@ -39,6 +55,7 @@ const CreateAction = () => {
                   name="points"
                   placeholder="Pontos:"
                   className="border p-2 w-full mb-3"
+                  onChange={({target}) => setPoints(target.value)}
                 />
               </div>
             </div>
