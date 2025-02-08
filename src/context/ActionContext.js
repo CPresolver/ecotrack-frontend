@@ -1,5 +1,7 @@
+"use client"
+
 import { createContext, useContext, useState, useEffect } from "react";
-import { getActions, createAction, updateAction, deleteAction } from "../services/actionService";
+import { getActions, createAction, updateAction, deleteAction } from "@/services/actionService";
 
 const ActionContext = createContext();
 
@@ -15,39 +17,43 @@ export function ActionProvider({ children }) {
       const data = await getActions();
       setActions(data);
     } catch (error) {
-      console.error("Erro ao buscar ações:", error);
+      console.error("Erro ao buscar ações:", error.message);
     }
   }
 
-  async function addAction(actionData) {
+  async function addAction(data) {
     try {
-      const newAction = await createAction(actionData);
-      setActions([...actions, newAction]);
+      const newAction = await createAction(data);
+      setActions((prevActions) => [...prevActions, newAction]);
     } catch (error) {
-      console.error("Erro ao criar ação:", error);
+      console.error("Erro ao adicionar ação:", error.message);
     }
   }
 
-  async function editAction(id, actionData) {
+  async function editAction(id, data) {
     try {
-      const updatedAction = await updateAction(id, actionData);
-      setActions(actions.map((action) => (action.id === id ? updatedAction : action)));
+      const updatedAction = await updateAction(id, data);
+      setActions((prevActions) =>
+        prevActions.map((action) =>
+          action.id === id ? updatedAction : action
+        )
+      );
     } catch (error) {
-      console.error("Erro ao atualizar ação:", error);
+      console.error("Erro ao atualizar ação:", error.message);
     }
   }
 
   async function removeAction(id) {
     try {
       await deleteAction(id);
-      setActions(actions.filter((action) => action.id !== id));
+      setActions((prevActions) => prevActions.filter((action) => action.id !== id));
     } catch (error) {
-      console.error("Erro ao excluir ação:", error);
+      console.error("Erro ao deletar ação:", error.message);
     }
   }
 
   return (
-    <ActionContext.Provider value={{ actions, addAction, editAction, removeAction, fetchActions }}>
+    <ActionContext.Provider value={{ actions, addAction, editAction, removeAction }}>
       {children}
     </ActionContext.Provider>
   );

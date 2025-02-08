@@ -7,8 +7,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
 const Login = () => {
-  const [email, setEmail] = React.useState()
-  const [password, setPassword] = React.useState()
+  const [username, setUserName] = React.useState("")
+  const [password, setPassword] = React.useState("")
 
   const { login } = useAuth();
   const router = useRouter();
@@ -16,7 +16,7 @@ const Login = () => {
   async function handleSubmit(event) {
     event.preventDefault();
     try {
-      await login(email, password);
+      await login(username, password);
       router.push("/home"); 
     } catch (error) {
       console.error("Erro ao fazer login:", error);
@@ -31,11 +31,11 @@ const Login = () => {
         <div className="mt-4">
           <form onSubmit={handleSubmit}>
             <input
-              type="email"
-              name=""
-              placeholder="Email:"
+              type="text"
+              value={username}
+              placeholder="Username:"
               className="border p-2 w-full mb-5"
-              onChange={({target}) => setEmail(target.value)}
+              onChange={({target}) => setUserName(target.value)}
             />
 
             <input

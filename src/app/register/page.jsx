@@ -1,17 +1,21 @@
+"use client"
+
 import React from "react";
 import FormLayout from "@/app/form";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
-const Register = () => {
-  const [name, setName] = React.useState()
-  const [email, setEmail] = React.useState()
-  const [password, setPassword] = React.useState()
+const RegisterPage = () => {
+  const [name, setName] = React.useState("")
+  const [email, setEmail] = React.useState("")
+  const [password, setPassword] = React.useState("")
+  const { register } = useAuth();
 
   async function handleSubmit(event) {
     event.preventDefault();
     try {
       await register(name, email, password);
-      router.push("/actions"); // Redireciona para a página de ações após o registro
+      router.push("/login"); 
     } catch (error) {
       console.error("Erro ao registrar:", error);
     }
@@ -25,7 +29,7 @@ const Register = () => {
           <form onSubmit={handleSubmit}>
             <input
               type="text"
-              name=""
+              value={name}
               placeholder="Nome:"
               className="border p-2 w-full mb-5"
               onChange={({ target }) => setName(target.value)}
@@ -33,7 +37,7 @@ const Register = () => {
 
             <input
               type="email"
-              name=""
+              value={email}
               placeholder="Email:"
               className="border p-2 w-full mb-5"
               onChange={({ target }) => setEmail(target.value)}
@@ -41,7 +45,7 @@ const Register = () => {
 
             <input
               type="password"
-              name=""
+              value={password}
               placeholder="Senha:"
               className="border p-2 w-full mb-5"
               onChange={({ target }) => setPassword(target.value)}
@@ -64,4 +68,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default RegisterPage;

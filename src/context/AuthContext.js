@@ -1,20 +1,21 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { signIn, signOut, signUp } from "../services/authService";
+"use client"
+import React from "react";
+import { signIn, signUp } from "@/services/authService";
 
-const AuthContext = createContext();
+const AuthContext = React.createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = React.useState(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       setUser({ token });
     }
   }, []);
 
-  async function login(email, password) {
-    const data = await signIn(email, password);
+  async function login(username, password) {
+    const data = await signIn(username, password);
     setUser({ token: data.token });
   }
 
@@ -23,18 +24,13 @@ export function AuthProvider({ children }) {
     setUser({ token: data.token });
   }
 
-  function logout() {
-    signOut();
-    setUser(null);
-  }
-
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
 export function useAuth() {
-  return useContext(AuthContext);
+  return React.useContext(AuthContext);
 }

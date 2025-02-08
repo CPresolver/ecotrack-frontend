@@ -9,7 +9,7 @@ export function withAuth(Component) {
 
     useEffect(() => {
       if (!loading && !user) {
-        router.push("/login"); // Redireciona se não estiver autenticado
+        router.push("/login");
       }
     }, [user, loading, router]);
 

@@ -1,5 +1,5 @@
 export async function apiFetch(endpoint, options = {}) {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://anastaciopaulino007.pythonanywhere.com/api/";
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const headers = {

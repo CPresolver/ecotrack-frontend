@@ -1,17 +1,21 @@
-"use client"
+"use client";
 
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { FaTrash } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { withAuth } from "@/utils/auth";
-import { getActions } from "@/services/actionService";
+import { getActions, deleteAction } from "@/services/actionService";
+import PrivateRoute from "@/hooks/privateRoute";
+import { fetchUserProfile } from "@/services/authService";
 
 const HomePage = () => {
   const [actions, setActions] = useState([]);
   const [loading, setLoading] = useState(true);
-  //const { signOut } = useAuth()
 
+
+
+  const { username } = fetchUserProfile()
 
   useEffect(() => {
     async function fetchActions() {
@@ -19,7 +23,7 @@ const HomePage = () => {
         const data = await getActions();
         setActions(data);
       } catch (error) {
-        console.error("Erro ao buscar usuários:", error);
+        console.error("Erro ao buscar ações:", error);
       } finally {
         setLoading(false);
       }
@@ -28,127 +32,108 @@ const HomePage = () => {
     fetchActions();
   }, []);
 
-  const handleDelete = (id) => {
-    
-  }
-  
-  const handleLogout = () => {
-    //signOut()
-  }
+  const handleDelete = async (id) => {
+    try {
+      const isDeleted = await deleteAction(id);
+      if (isDeleted) {
+        setActions((prevActions) =>
+          prevActions.filter((action) => action.id !== id)
+        );
+      }
+    } catch (error) {
+      console.error("Erro ao excluir ação:", error);
+    }
+  };
 
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("userId"); 
+    window.location.reload();
+  };
+  
 
   if (loading) return <p>Carregando...</p>;
 
   return (
-    <div className="flex justify-center mt-24">
-      <div className="w-2/3 p-4 shadow-md">
-        <div>
-          <div className="py-5">
-            <h1 className="text-2xl font-bold uppercase">Você possui 10 pontos acumulados</h1>
-          </div>
-          
-          <h2 className="text-xl font-semibold uppercase">Acção sustentável</h2>
-
-          <div className="flex justify-end">
-            <button className="p-2 bg-blue-500 text-white font-bold text-sm uppercase">
-              <Link href="/action/create">Criar acção</Link>
-            </button>
-          </div>
-
+    <PrivateRoute>
+      <div className="flex justify-center mt-24">
+        <div className="w-2/3 p-4 shadow-md">
           <div>
-            <table className="table-auto mt-4 w-full border-collapse border-2 border-gray-200">
-              <thead>
-                <tr>
-                  <th className="py-4 border-r border-gray-200">Título</th>
-                  <th className="border-r border-gray-200">Descrição</th>
-                  <th className="border-r border-gray-200">Categoria</th>
-                  <th className="border-r border-gray-200">Pontos</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border border-gray-200">
-                  <td className="py-4 border-r border-gray-200 pl-4">
-                    The Sliding
-                  </td>
-                  <td className="py-4 border-r border-gray-200 pl-4">
-                    Malcolm Lockyer
-                  </td>
-                  <td className="py-4 border-r border-gray-200 pl-4">
-                    Malcolm Lockyer
-                  </td>
-                  <td className="py-4 border-r border-gray-200 pl-4">1961</td>
-                  <td className="pl-4">
-                    <button className="bg-red-600 text-white p-2 mr-2">
-                      <FaTrash />
-                    </button>
-                    <button className="bg-yellow-400 text-white p-2">
-                      <Link href={`action/${1}`}>
-                        <MdEdit />
-                      </Link>
-                    </button>
-                  </td>
-                </tr>
+            <div className="py-5">
+              <h1 className="text-2xl font-bold uppercase">
+                Usuário: {username}
+              </h1>
+            </div>
 
-                <tr className="border border-gray-200">
-                  <td className="py-4 border-r border-gray-200 pl-4">
-                    Witchy Woman
-                  </td>
-                  <td className="py-4 border-r border-gray-200 pl-4">
-                    The Eagles
-                  </td>
-                  <td className="py-4 border-r border-gray-200 pl-4">
-                    Malcolm Lockyer
-                  </td>
-                  <td className="pl-4 py-4 border-r border-gray-200">1972</td>
-                  <td className="pl-4">
-                    <button className="bg-red-600 text-white p-2 mr-2">
-                      <FaTrash />
-                    </button>
-                    <button className="bg-yellow-400 text-white p-2">
-                      <Link href={`action/${1}`}>
-                        <MdEdit />
-                      </Link>
-                    </button>
-                  </td>
-                </tr>
+            <h2 className="text-xl font-semibold uppercase">
+              Ações sustentáveis
+            </h2>
 
-                <tr className="border border-gray-200">
-                  <td className="py-4 border-r border-gray-200 pl-4">
-                    Shining Star
-                  </td>
-                  <td className="py-4 border-r border-gray-200 pl-4">
-                    Earth, Wind
-                  </td>
-                  <td className="py-4 border-r border-gray-200 pl-4">
-                    Malcolm Lockyer
-                  </td>
-                  <td className="pl-4 py-4 border-r border-gray-200">1975</td>
-                  <td className="pl-4">
-                    <button className="bg-red-600 text-white p-2 mr-2">
-                      <FaTrash />
-                    </button>
-                    <button className="bg-yellow-400 text-white p-2">
-                      <Link href={`action/${1}`}>
-                        <MdEdit />
-                      </Link>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+            <div className="flex justify-end">
+              <button className="p-2 bg-blue-500 text-white font-bold text-sm uppercase">
+                <Link href="/action/create">Criar ação</Link>
+              </button>
+            </div>
 
-          <div className="mt-5">
-            <button onClick={handleLogout} className="p-2 bg-blue-500 text-white font-bold text-sm uppercase">
-              <Link href="/action/create">Terminar sessão</Link>
-            </button>
+            <div>
+              <table className="table-auto mt-4 w-full border-collapse border-2 border-gray-200">
+                <thead>
+                  <tr>
+                    <th className="py-4 border-r border-gray-200">Título</th>
+                    <th className="border-r border-gray-200">Descrição</th>
+                    <th className="border-r border-gray-200">Categoria</th>
+                    <th className="border-r border-gray-200">Pontos</th>
+                    <th className="border-r border-gray-200">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {actions.map((action) => (
+                    <tr key={action.id} className="border border-gray-200">
+                      <td className="py-4 border-r border-gray-200 pl-4">
+                        {action.title}
+                      </td>
+                      <td className="py-4 border-r border-gray-200 pl-4">
+                        {action.description}
+                      </td>
+                      <td className="py-4 border-r border-gray-200 pl-4">
+                        {action.category}
+                      </td>
+                      <td className="pl-4 py-4 border-r border-gray-200">
+                        {action.points}
+                      </td>
+                      <td className="pl-4">
+                        <button
+                          className="bg-red-600 text-white p-2 mr-2"
+                          onClick={() => handleDelete(action.id)}
+                        >
+                          <FaTrash />
+                        </button>
+                        <button className="bg-yellow-400 text-white p-2">
+                          <Link href={`/action/${action.id}`}>
+                            <MdEdit />
+                          </Link>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-5">
+              <button
+                onClick={handleLogout}
+                className="p-2 bg-blue-500 text-white font-bold text-sm uppercase"
+              >
+                Terminar sessão
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </PrivateRoute>
   );
-}
+};
 
-
-//export default withAuth(HomePage)
-export default HomePage
+export default HomePage;

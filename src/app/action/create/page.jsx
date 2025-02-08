@@ -1,18 +1,27 @@
+"use client"
+
 import React from "react";
 import FormLayout from "@/app/form";
+import { useActions } from "@/context/ActionContext";
 
 const CreateAction = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
-  const [points, setPoints] = useState("");
+  const [title, setTitle] = React.useState("");
+  const [description, setDescription] = React.useState("");
+  const [category, setCategory] = React.useState("");
+  const [points, setPoints] = React.useState("");
   
   const { addAction } = useActions();
 
   async function handleSubmit(event) {
     event.preventDefault();
-    await addAction({ title, description, category, points });
+    const userId = localStorage.getItem("userId"); 
+    if (!userId) {
+      console.error("Erro: ID do usuário não encontrado.");
+      return;
+    }
+    await addAction({ title, description, category, points, user: userId });
   }
+  
 
   return (
     <>
@@ -24,12 +33,13 @@ const CreateAction = () => {
           <form onSubmit={handleSubmit}>
             <input
               type="text"
-              name=""
+              value={title}
               placeholder="Título:"
               className="border p-2 w-full mb-3"
               onChange={({target}) => setTitle(target.value)}
             />
             <textarea
+              value={description}
               name="description"
               placeholder="Descrição:"
               className="border p-2 w-full mb-3"
@@ -38,21 +48,21 @@ const CreateAction = () => {
 
             <div className="flex justify-between">
               <div className="w-1/2 mr-2">
-                <select name="category" className="border p-2 w-full mb-3">
-                  <option value="" disabled>
+                <select value={category} className="border p-2 w-full mb-3"  onChange={({ target }) => setCategory(target.value)} >
+                  <option disabled>
                     Categoria
                   </option>
-                  <option value="">Reciclagem</option>
-                  <option value="">Energia</option>
-                  <option value="">Água</option>
-                  <option value="">Mobilidade</option>
+                  <option value="Reciclagem">Reciclagem</option>
+                  <option value="Energia">Energia</option>
+                  <option value="Água">Água</option>
+                  <option value="Mobilidade">Mobilidade</option>
                 </select>
               </div>
 
               <div className="w-1/2">
                 <input
                   type="number"
-                  name="points"
+                  value={points}
                   placeholder="Pontos:"
                   className="border p-2 w-full mb-3"
                   onChange={({target}) => setPoints(target.value)}
@@ -60,7 +70,7 @@ const CreateAction = () => {
               </div>
             </div>
 
-            <button className="p-2 bg-blue-500 text-white font-bold text-sm uppercase">
+            <button type="submit" className="p-2 bg-blue-500 text-white font-bold text-sm uppercase">
               Criar
             </button>
           </form>
