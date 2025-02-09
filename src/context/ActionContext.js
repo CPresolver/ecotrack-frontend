@@ -1,32 +1,25 @@
-"use client";
+"use client"
 
 import { createContext, useContext, useState, useEffect } from "react";
-import {
-  getActions,
-  createAction,
-  updateAction,
-  deleteAction,
-} from "@/services/actionService";
+import { getActions, createAction, updateAction, deleteAction } from "@/services/actionService";
 
 const ActionContext = createContext();
 
 export function ActionProvider({ children }) {
   const [actions, setActions] = useState([]);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function fetchActions() {
-      try {
-        const data = await getActions();
-        setActions(data);
-      } catch (error) {
-        setError(error.message);
-        console.error("Erro ao buscar ações:", error.message);
-      }
-    }
-
     fetchActions();
   }, []);
+
+  async function fetchActions() {
+    try {
+      const data = await getActions();
+      setActions(data);
+    } catch (error) {
+      console.error("Erro ao buscar ações:", error.message);
+    }
+  }
 
   async function addAction(data) {
     try {
@@ -34,7 +27,6 @@ export function ActionProvider({ children }) {
       setActions((prevActions) => [...prevActions, newAction]);
     } catch (error) {
       console.error("Erro ao adicionar ação:", error.message);
-      throw error;
     }
   }
 
@@ -48,24 +40,20 @@ export function ActionProvider({ children }) {
       );
     } catch (error) {
       console.error("Erro ao atualizar ação:", error.message);
-      throw error;
     }
   }
 
   async function removeAction(id) {
-    setActions((prevActions) => prevActions.filter((action) => action.id !== id));
     try {
       await deleteAction(id);
+      setActions((prevActions) => prevActions.filter((action) => action.id !== id));
     } catch (error) {
       console.error("Erro ao deletar ação:", error.message);
-      throw error;
     }
   }
 
   return (
-    <ActionContext.Provider
-      value={{ actions, addAction, editAction, removeAction, error }}
-    >
+    <ActionContext.Provider value={{ actions, addAction, editAction, removeAction }}>
       {children}
     </ActionContext.Provider>
   );

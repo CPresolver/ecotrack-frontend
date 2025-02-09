@@ -6,16 +6,16 @@ import Link from "next/link";
 import { FaTrash } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import { getActions, deleteAction } from "@/services/actionService";
-import { logout } from "@/services/authService";
-import { useRouter } from "next/navigation";
+import PrivateRoute from "@/hooks/privateRoute";
+import { fetchUserProfile } from "@/services/authService";
 
 const HomePage = () => {
   const [actions, setActions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("")
-  const router = useRouter()
 
-  const username = localStorage.getItem("username")
+
+
+  const { username } = fetchUserProfile()
 
   useEffect(() => {
     async function fetchActions() {
@@ -40,24 +40,23 @@ const HomePage = () => {
           prevActions.filter((action) => action.id !== id)
         );
       }
-
-      router.push("/home")
     } catch (error) {
-      setError("Erro ao excluir ação:", error)
+      console.error("Erro ao excluir ação:", error);
     }
   };
 
   const handleLogout = () => {
-    logout()
-    router.push("/login")
-  }
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("userId"); 
+    window.location.reload();
+  };
   
 
   if (loading) return <p>Carregando...</p>;
 
-  if(!username) return <p>Erro! Usuário não autenticado</p>;
-
   return (
+    <PrivateRoute>
       <div className="flex justify-center mt-24">
         <div className="w-2/3 p-4 shadow-md">
           <div>
@@ -66,12 +65,6 @@ const HomePage = () => {
                 Usuário: {username}
               </h1>
             </div>
-
-            {error && (
-              <div className="bg-red-400">
-                <p className="text-black text-center mb-4">{error}</p>
-              </div>
-            )}
 
             <h2 className="text-xl font-semibold uppercase">
               Ações sustentáveis
@@ -139,6 +132,7 @@ const HomePage = () => {
           </div>
         </div>
       </div>
+    </PrivateRoute>
   );
 };
 
