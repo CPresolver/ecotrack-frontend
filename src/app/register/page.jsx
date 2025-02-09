@@ -1,23 +1,29 @@
-"use client"
+"use client";
 
 import React from "react";
 import FormLayout from "@/app/form";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 const RegisterPage = () => {
-  const [name, setName] = React.useState("")
-  const [email, setEmail] = React.useState("")
-  const [password, setPassword] = React.useState("")
+  const [name, setName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
   const { register } = useAuth();
-
+  const [message, setMessage] = React.useState("");
+  const router = useRouter()
+  
   async function handleSubmit(event) {
     event.preventDefault();
+
     try {
       await register(name, email, password);
-      router.push("/login"); 
+      setMessage("Conta criada com sucesso! Redirecionando para login...");
+      router.push("/login")
     } catch (error) {
-      console.error("Erro ao registrar:", error);
+      setMessage("Erro ao registrar.");
+      router.push("/login")
     }
   }
 
@@ -26,6 +32,12 @@ const RegisterPage = () => {
       <div>
         <h2 className="text-xl font-bold uppercase text-center">Register</h2>
         <div className="mt-4">
+          {message && (
+            <div className="bg-blue-300">
+              <p className="text-blue-500 text-center mb-4">{message}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit}>
             <input
               type="text"
@@ -60,7 +72,10 @@ const RegisterPage = () => {
           </form>
 
           <p className="mt-5 text-sm">
-            Já tem uma conta? <span className="text-blue-700 font-medium underline"><Link href="/login">Entrar</Link></span>
+            Já tem uma conta?{" "}
+            <span className="text-blue-700 font-medium underline">
+              <Link href="/login">Entrar</Link>
+            </span>
           </p>
         </div>
       </div>

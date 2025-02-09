@@ -1,55 +1,84 @@
-"use client"
+"use client";
 
-import React from "react";
+import React, { useState } from "react";
 import FormLayout from "@/app/form";
 import { useActions } from "@/context/ActionContext";
 
 const CreateAction = () => {
-  const [title, setTitle] = React.useState("");
-  const [description, setDescription] = React.useState("");
-  const [category, setCategory] = React.useState("");
-  const [points, setPoints] = React.useState("");
-  
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [points, setPoints] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const { addAction } = useActions();
+
+  const username = localStorage.getItem("username")
 
   async function handleSubmit(event) {
     event.preventDefault();
-    const userId = localStorage.getItem("userId"); 
-    if (!userId) {
-      console.error("Erro: ID do usuário não encontrado.");
+    setError(null);
+
+    if (!title || !description || !category || !points) {
+      setError("Todos os campos são obrigatórios.");
       return;
     }
-    await addAction({ title, description, category, points, user: userId });
+
+    const username = localStorage.getItem("username");
+    if (!username) {
+      setError("Erro: ID do usuário não encontrado.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await addAction({ title, description, category, points, user: username });
+      setTitle("");
+      setDescription("");
+      setCategory("");
+      setPoints("");
+      setError("Criado com sucesso")
+    } catch (err) {
+      setError(err.message || "Erro ao criar ação.");
+    } finally {
+      setLoading(false);
+    }
   }
-  
+
+  if(!username) return <p>Erro! Usuário não autenticado</p>;
 
   return (
-    <>
-      <FormLayout>
+    <FormLayout>
       <div>
-        <h2 className="uppercase font-bold text-xl">Criar uma nova acção</h2>
+        <h2 className="uppercase font-bold text-xl">Criar uma nova ação</h2>
 
         <div className="mt-10">
+          {error && <div className="bg-blue-300 mb-2 p-2"><p className="text-blue-500">{error}</p></div>}
+
           <form onSubmit={handleSubmit}>
             <input
               type="text"
               value={title}
               placeholder="Título:"
               className="border p-2 w-full mb-3"
-              onChange={({target}) => setTitle(target.value)}
+              onChange={({ target }) => setTitle(target.value)}
             />
             <textarea
               value={description}
-              name="description"
               placeholder="Descrição:"
               className="border p-2 w-full mb-3"
-              onChange={({target}) => setDescription(target.value)}
+              onChange={({ target }) => setDescription(target.value)}
             ></textarea>
 
             <div className="flex justify-between">
               <div className="w-1/2 mr-2">
-                <select value={category} className="border p-2 w-full mb-3"  onChange={({ target }) => setCategory(target.value)} >
-                  <option disabled>
+                <select
+                  value={category}
+                  className="border p-2 w-full mb-3"
+                  onChange={({ target }) => setCategory(target.value)}
+                >
+                  <option value="" disabled>
                     Categoria
                   </option>
                   <option value="Reciclagem">Reciclagem</option>
@@ -65,19 +94,22 @@ const CreateAction = () => {
                   value={points}
                   placeholder="Pontos:"
                   className="border p-2 w-full mb-3"
-                  onChange={({target}) => setPoints(target.value)}
+                  onChange={({ target }) => setPoints(target.value)}
                 />
               </div>
             </div>
 
-            <button type="submit" className="p-2 bg-blue-500 text-white font-bold text-sm uppercase">
-              Criar
+            <button
+              type="submit"
+              className={`p-2 w-full text-white font-bold text-sm uppercase ${loading ? "bg-gray-400" : "bg-blue-500"}`}
+              disabled={loading}
+            >
+              {loading ? "Criando..." : "Criar"}
             </button>
           </form>
         </div>
       </div>
     </FormLayout>
-    </>
   );
 };
 

@@ -1,74 +1,50 @@
 const API_URL = "https://anastaciopaulino007.pythonanywhere.com/api/actions";
 
-export async function createAction(data) {
-  const res = await fetch(`${API_URL}/`, {
-    method: "POST",
+async function fetchWithAuth(url, options = {}) {
+  const token = localStorage.getItem("accessToken");
+  if (!token) throw new Error("Usuário não autenticado. Faça login novamente.");
+
+  const res = await fetch(url, {
+    ...options,
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+      Authorization: `Bearer ${token}`,
+      ...options.headers,
     },
-    body: JSON.stringify(data),
   });
 
-  if (!res.ok) throw new Error("Erro ao criar ação");
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || "Erro na requisição");
+  }
 
-  const action = await res.json();
-  return action;
+  return res.status === 204 ? null : await res.json();
+}
+
+export async function createAction(data) {
+  return fetchWithAuth(`${API_URL}/`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 }
 
 export async function getActions() {
-  const res = await fetch(`${API_URL}/`, {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
-    },
-  });
-
-  if (!res.ok) throw new Error("Erro ao obter ações");
-
-  const actions = await res.json();
-  return actions;
+  return fetchWithAuth(`${API_URL}/`);
 }
 
 export async function getActionById(id) {
-  const res = await fetch(`${API_URL}/${id}/`, {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
-    },
-  });
-
-  if (!res.ok) throw new Error("Erro ao obter ação");
-
-  const action = await res.json();
-  return action;
+  return fetchWithAuth(`${API_URL}/${id}/`);
 }
 
 export async function updateAction(id, data) {
-  const res = await fetch(`${API_URL}/${id}/`, {
+  return fetchWithAuth(`${API_URL}/${id}/`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
-    },
     body: JSON.stringify(data),
   });
-
-  if (!res.ok) throw new Error("Erro ao atualizar ação");
-
-  const action = await res.json();
-  return action;
 }
 
 export async function deleteAction(id) {
-  const res = await fetch(`${API_URL}/${id}/`, {
+  return fetchWithAuth(`${API_URL}/${id}/`, {
     method: "DELETE",
-    headers: {
-      "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
-    },
   });
-
-  if (!res.ok) throw new Error("Erro ao deletar ação");
-
-  return res.status === 204;
 }

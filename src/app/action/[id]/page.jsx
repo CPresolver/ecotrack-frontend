@@ -16,6 +16,8 @@ const EditAction = () => {
   const { id } = params;
   const router = useRouter();
 
+  const username = localStorage.getItem("username")
+
   useEffect(() => {
     async function fetchAction() {
       try {
@@ -52,10 +54,14 @@ const EditAction = () => {
       setError("Erro ao atualizar a ação");
     }
   };
+  
+  if(!username) return <p>Erro! Usuário não autenticado</p>;
+
 
   if (loading) {
     return <p>Carregando...</p>;
   }
+
 
   return (
     <FormLayout>

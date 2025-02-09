@@ -13,6 +13,8 @@ const Login = () => {
   const { login } = useAuth();
   const router = useRouter();
 
+  const [message, setMessage] = React.useState("")
+
   async function handleSubmit(event) {
     event.preventDefault();
     try {
@@ -20,6 +22,7 @@ const Login = () => {
       router.push("/home"); 
     } catch (error) {
       console.error("Erro ao fazer login:", error);
+      setMessage("Erro ao fazer login:", error)
     }
   }
 
@@ -29,6 +32,10 @@ const Login = () => {
       <div>
         <h2 className="text-xl font-bold uppercase text-center">Login</h2>
         <div className="mt-4">
+          {message && (
+            <p className="text-red-600 text-center mb-4">{message}</p>
+          )}
+
           <form onSubmit={handleSubmit}>
             <input
               type="text"
